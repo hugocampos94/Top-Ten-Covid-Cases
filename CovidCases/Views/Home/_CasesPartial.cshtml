@@ -1,0 +1,16 @@
+﻿@model TopCases
+<table id="cases-table" class="table table-hover">
+    <tr>
+        <th>@Model.NameLabel</th>
+        <th>@Model.CasesLabel</th>
+        <th>@Model.DeathsLabel</th>
+    </tr>
+    @foreach (var cases in Model.CaseData)
+    {
+        <tr>
+            <td>@cases.Name</td>
+            <td>@cases.Cases</td>
+            <td>@cases.Deaths</td>
+        </tr>
+    }
+</table>

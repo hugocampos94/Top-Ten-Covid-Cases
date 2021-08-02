@@ -1,0 +1,131 @@
+﻿@model TopCasesData
+<div class="text-center">
+    <h1 class="display-4">TOP 10 COVID CASES</h1>
+    <div class="row justify-content-md-center p-3">
+        <div class="col">
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Regions
+                </button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" id="region-dropdown-all">Regions</a>
+                    @foreach (var region in Model.RegionData)
+                    {
+                        <a class="dropdown-item" id="region-dropdown-iso-@region.Iso" href="#">@region.Name</a>
+                    }
+                </div>
+                <input id="region-dropdown-value" type="hidden" value="" />
+            </div>
+        </div>
+        <div class="col">
+            <button id="case-report" type="button" class="btn btn-primary">Report</button>
+        </div>
+        <div class="col">
+            <button id="export-xml" type="button" class="btn btn-primary">XML</button>
+        </div>
+        <div class="col">
+            <button id="export-json" type="button" class="btn btn-primary">JSON</button>
+        </div>
+        <div class="col">
+            <button id="export-csv" type="button" class="btn btn-primary">CSV</button>
+        </div>
+    </div>
+    <div id="cases-grid">
+        <partial name="_CasesPartial" model="Model.TopCases" />
+    </div>
+    <div id="loading-cases-grid" class="spinner-border d-none" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(".dropdown-item").click(function () {
+            let regionIso = $(this).attr("id").replace("region-dropdown-iso-", "");
+            regionIso = regionIso.replace("region-dropdown-all", "");
+            $("#region-dropdown-value").val(regionIso);
+            $(this).parent().siblings("button").text($(this).text());
+        });
+
+        $("#case-report").click(function () {
+            $("#cases-grid").addClass("d-none");
+            $("#loading-cases-grid").removeClass("d-none");
+            let data = {
+                iso: $("#region-dropdown-value").val()
+            };
+            $.ajax({
+                url: window.location.origin + "/Home/Report",
+                type: "get",
+                data: data
+            })
+                .done(function (result) {
+                    $("#cases-table").html(result);
+                    $("#cases-grid").removeClass("d-none");
+                    $("#loading-cases-grid").addClass("d-none");
+                });
+        });
+
+        $("#export-xml").click(function () {
+            let data = {
+                iso: $("#region-dropdown-value").val(),
+                export: "xml"
+            };
+            $.ajax({
+                url: window.location.origin + "/Home/Report",
+                type: "get",
+                data: data
+            })
+                .done(function (result) {
+                    let blob = new Blob([result]);
+                    let downloadUrl = URL.createObjectURL(blob);
+                    let a = document.createElement("a");
+                    a.href = downloadUrl;
+                    a.download = "cases.xml";
+                    document.body.appendChild(a);
+                    a.click();
+                });
+        });
+
+        $("#export-json").click(function () {
+            let data = {
+                iso: $("#region-dropdown-value").val(),
+                export: "json"
+            };
+            $.ajax({
+                url: window.location.origin + "/Home/Report",
+                type: "get",
+                data: data
+            })
+                .done(function (result) {
+                    let blob = new Blob([result]);
+                    let downloadUrl = URL.createObjectURL(blob);
+                    let a = document.createElement("a");
+                    a.href = downloadUrl;
+                    a.download = "cases.json";
+                    document.body.appendChild(a);
+                    a.click();
+                });
+        });
+
+        $("#export-csv").click(function () {
+            let data = {
+                iso: $("#region-dropdown-value").val(),
+                export: "csv"
+            };
+            $.ajax({
+                url: window.location.origin + "/Home/Report",
+                type: "get",
+                data: data
+            })
+                .done(function (result) {
+                    let blob = new Blob([result]);
+                    let downloadUrl = URL.createObjectURL(blob);
+                    let a = document.createElement("a");
+                    a.href = downloadUrl;
+                    a.download = "cases.csv";
+                    document.body.appendChild(a);
+                    a.click();
+                });
+        });
+    </script>
+}
